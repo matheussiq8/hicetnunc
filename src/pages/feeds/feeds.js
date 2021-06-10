@@ -8,8 +8,14 @@ import {
   GetFeaturedFeed,
 } from '../../data/api'
 import { Page, Container, Padding } from '../../components/layout'
-import { FeedItem } from '../../components/feed-item'
 import { Loading } from '../../components/loading'
+
+import { ResponsiveMasonry } from '../../components/responsive-masonry'
+import { PATH } from '../../constants'
+import { Button } from '../../components/button'
+import { ItemInfo } from '../../components/item-info'
+import { renderMediaType } from '../../components/media-types'
+import styles from './styles.module.scss'
 
 const customFloor = function (value, roundTo) {
   return Math.floor(value / roundTo) * roundTo
@@ -100,11 +106,12 @@ export const Feeds = ({ type = 0 }) => {
         dataLength={items.length}
         next={loadMore}
         hasMore={hasMore}
+        scrollThreshold='50%'
         loader={
-          <Container>
-            <Padding>
+          <Container xlarge>
+            <ResponsiveMasonry>
               <Loading />
-            </Padding>
+            </ResponsiveMasonry>
           </Container>
         }
         endMessage={
@@ -117,15 +124,31 @@ export const Feeds = ({ type = 0 }) => {
         }
       >
         <div>
-          <Container>
-            <Padding>
-              {items.map((item, index) => (
-                <FeedItem key={`${item.token_id}-${index}`} {...item} />
-              ))}
-            </Padding>
+          <Container xlarge>
+            <ResponsiveMasonry>
+              {items.map((nft, index) => {
+                const { mimeType, uri } = nft.token_info.formats[0]
+
+                return (
+                  <Button
+                    key={nft.token_id}
+                    href={`${PATH.OBJKT}/${nft.token_id}`}
+                  >
+                    <div className={styles.container2}>
+                      {renderMediaType({
+                        mimeType,
+                        uri: uri.split('//')[1],
+                        metadata: nft,
+                      })}
+                      <div className={styles.number2}>#{nft.token_id}</div>
+                    </div>
+                  </Button>
+                )
+              })}
+            </ResponsiveMasonry>
           </Container>
         </div>
       </InfiniteScroll>
-    </Page>
+    </Page >
   )
 }
